@@ -5,15 +5,14 @@ export const create = async (data) => {
 };
 
 export const findAll = async (filters = {}) => {
-    const { title, description, duration, genre, rating, available} = filters;
+    const { title, genre, available, minRating, maxDuration } = filters;
     const where = {};
 
     if (title) where.title = { contains: title, mode: 'insensitive' };
-    if (description) where.description = { contains: description, mode: 'insensitive' };
-    if (duration !== undefined) where.a = parseInt(duration);
-    if (rating !== undefined) where.rating = parseFloat(rating);
-    if (available !== undefined) { where.available = available === 'true' || available === true;
-     }
+    if (genre) where.genre = genre;
+    if (available !== undefined) where.available = available === 'true';
+    if (minRating) where.rating = { gte: parseFloat(minRating) };
+    if (maxDuration) where.duration = { lte: parseInt(maxDuration) };
 
     return await prisma.movie.findMany({
         where,
@@ -24,6 +23,12 @@ export const findAll = async (filters = {}) => {
 export const findById = async (id) => {
     return await prisma.movie.findUnique({
         where: { id: parseInt(id) },
+    });
+};
+
+export const findByTitle = async (title) => {
+    return await prisma.movie.findFirst({
+        where: { title: { equals: title, mode: 'insensitive' } },
     });
 };
 
